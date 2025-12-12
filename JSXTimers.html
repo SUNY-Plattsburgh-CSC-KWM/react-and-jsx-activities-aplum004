@@ -38,12 +38,88 @@
 	);
     }
 
+    // KitchenTimer: countdown timer that uses a tickTock() interval, supports Pause/Resume,
+    // Reset, and shows a popup when the timer reaches zero.
+    function KitchenTimer({ startSeconds = 60 }) {
+      const [secondsLeft, setSecondsLeft] = React.useState(startSeconds);
+      const [running, setRunning] = React.useState(false);
+
+      // Keep secondsLeft in sync if parent changes startSeconds
+      React.useEffect(() => {
+        setSecondsLeft(startSeconds);
+      }, [startSeconds]);
+
+      // Main interval effect: uses a tickTock function similar to the Counter example
+      React.useEffect(() => {
+        if (!running) return;
+
+        const tickTock = () => {
+          setSecondsLeft((s) => {
+            if (s <= 0) return 0;
+            return s - 1;
+          });
+        };
+
+        const timer = setInterval(tickTock, 1000);
+
+        return () => clearInterval(timer);
+      }, [running]);
+
+      // Notify when completed and stop the timer
+      React.useEffect(() => {
+        if (secondsLeft === 0 && running) {
+          setRunning(false);
+          // popup when complete
+          alert('Time is up!');
+        }
+      }, [secondsLeft, running]);
+
+      const minutes = Math.floor(secondsLeft / 60);
+      const seconds = secondsLeft % 60;
+
+      return (
+        <section>
+          <h3>Kitchen Timer</h3>
+          <div>Time: {minutes}:{String(seconds).padStart(2, '0')}</div>
+          <div style={{ marginTop: '8px' }}>
+            <button type="button" onClick={() => setRunning((r) => !r)}>
+              {running ? 'Pause' : 'Start'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSecondsLeft(startSeconds);
+                setRunning(false);
+              }}
+              style={{ marginLeft: '8px' }}
+            >
+              Reset
+            </button>
+            <label style={{ marginLeft: '12px' }}>
+              Set seconds:
+              <input
+                type="number"
+                min="0"
+                value={secondsLeft}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  if (!Number.isNaN(v) && v >= 0) setSecondsLeft(v);
+                }}
+                style={{ marginLeft: '6px', width: '80px' }}
+              />
+            </label>
+          </div>
+        </section>
+      );
+    }
+
     function App() {
       return (
         <div>
           <Counter start={0} />
           <Counter start={123} />
           <Counter start={-64} />
+          <KitchenTimer startSeconds={90} />
         </div>
       );
     }

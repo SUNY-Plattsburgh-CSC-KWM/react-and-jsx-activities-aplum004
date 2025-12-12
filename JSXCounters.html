@@ -17,16 +17,61 @@
       return (
         <main>
           <p>Counter: {counter}</p>
-          <p><input type="number" id-"factor"></input></p>
           <button onClick={() => setCounter((value) => value + 1)}>
             Increment
-          </button>
-          <button onClick={() => setCounter((value) => value - 1)} >
-            Subtraction
           </button>
         </main>
       );
     }
+
+    function Calculator() {
+      const [a, setA] = React.useState("");
+      const [b, setB] = React.useState("");
+      const [op, setOp] = React.useState("+");
+      const [result, setResult] = React.useState(null);
+      const [error, setError] = React.useState("");
+
+      function compute() {
+        setError("");
+        const na = parseFloat(a);
+        const nb = parseFloat(b);
+        if (Number.isNaN(na) || Number.isNaN(nb)) {
+          setError("Please enter valid numbers.");
+          setResult(null);
+          return;
+        }
+        let r; 
+        switch (op) {
+          case "+": r = na + nb; break;
+          case "-": r = na - nb; break;
+          case "*": r = na * nb; break;
+          case "/":
+            if (nb === 0) { setError("Cannot divide by zero."); setResult(null); return; }
+            r = na / nb; break;
+          default: setError("Unknown operator"); return;
+        }
+        setResult(r);
+      }
+
+      return (
+        <section>
+          <h3>Calculator</h3>
+          <input value={a} onChange={e => setA(e.target.value)} placeholder="First number" />
+          <select value={op} onChange={e => setOp(e.target.value)}>
+            <option value="+">+</option>
+            <option value="-">−</option>
+            <option value="*">×</option>
+            <option value="/">÷</option>
+          </select>
+          <input value={b} onChange={e => setB(e.target.value)} placeholder="Second number" />
+          <button onClick={compute}>Compute</button>
+          {error && <div style={{color: "red"}}>{error}</div>}
+          {result !== null && <div>Result: {result}</div>}
+        </section>
+      );
+    }
+
+    
 
     function App() {
       return (
@@ -34,16 +79,16 @@
           <Counter start={0} />
           <Counter start={123} />
           <Counter start={-64} />
+          <Calculator/>
         </div>
       );
     }
 
-    const root = ReactDOM.render(<App />, document.getElementById("root"));
-
-    root.render(
+    ReactDOM.render(
       <React.StrictMode>
         <App />
-      </React.StrictMode>
+      </React.StrictMode>,
+      document.getElementById("root")
     );
 
   </script>
